@@ -111,3 +111,84 @@
 <body>
   <div class="container">
     <div id="screen1" class="card">
+      <h2>💖 Привет, любовь</h2>
+      <p>Я хочу пригласить тебя на свидание…</p>
+      <button class="btn" onclick="next(2)">Начать ✨</button>
+    </div>
+
+    <div id="screen2" class="card hidden">
+      <h3>Когда ты хочешь свидание? 💕</h3>
+      <button class="btn" onclick="setDate('Сегодня')">🌆 Сегодня</button>
+      <button class="btn" onclick="setDate('На выходных')">🎉 На выходных</button>
+    </div>
+
+    <div id="screen3" class="card hidden">
+      <h3>Что будем делать? 😍</h3>
+      <button class="btn" onclick="setActivity('Фильм')">🍿 Фильм</button>
+      <button class="btn" onclick="setActivity('Ресторан')">🍽 Ресторан</button>
+      <button class="btn" onclick="setActivity('Прогулка')">🌳 Прогулка</button>
+      <button class="btn" onclick="setActivity('Сюрприз')">🎲 Сюрприз</button>
+    </div>
+
+    <div id="screen4" class="card hidden">
+      <h3>Расскажи подробнее 💬</h3>
+      <textarea id="comment" placeholder="Например: хочу суши 🍣"></textarea>
+      <button class="btn" onclick="sendData()">Готово 💖</button>
+      <p class="small">Если открыть страницу вне Telegram — данные просто покажутся на экране.</p>
+    </div>
+
+    <div id="screen5" class="card hidden">
+      <h2>Готово 💌</h2>
+      <p id="doneText">Я отправила всё мужу 😘</p>
+    </div>
+  </div>
+
+  <script>
+    const appData = {
+      date: "",
+      activity: "",
+      comment: ""
+    };
+
+    function showScreen(id) {
+      document.querySelectorAll(".card").forEach(el => el.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function next(n) {
+      showScreen("screen" + n);
+    }
+
+    function setDate(value) {
+      appData.date = value;
+      next(3);
+    }
+
+    function setActivity(value) {
+      appData.activity = value;
+      next(4);
+    }
+
+    function sendData() {
+      appData.comment = document.getElementById("comment").value.trim();
+
+      const payload = JSON.stringify(appData);
+
+      if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.sendData(payload);
+        showScreen("screen5");
+      } else {
+        showScreen("screen5");
+        document.getElementById("doneText").innerText =
+          "Открыто вне Telegram.\nВот данные:\n" + payload;
+      }
+    }
+
+    if (window.Telegram && Telegram.WebApp) {
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+    }
+  </script>
+</body>
+</html>
