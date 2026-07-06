@@ -79,6 +79,7 @@
 
     .field {
       margin-top: 12px;
+      cursor: pointer;
     }
 
     label {
@@ -88,7 +89,7 @@
       opacity: 0.95;
     }
 
-    input, textarea, select {
+    input, textarea {
       width: 100%;
       border: none;
       border-radius: 16px;
@@ -150,27 +151,34 @@
 </head>
 <body>
   <div class="container">
+
     <!-- Экран 1 -->
     <div id="screen1" class="card">
-      <h2>💖 Привет, Kristina </h2>
-      <p>Давай выберем следующее свидание ✨</p>
-
-      <div class="field">
-        <label for="date">Когда ты хочешь свидание?</label>
-        <input type="date" id="date" />
-      </div>
-
-      <div class="field">
-        <label for="time">Во сколько примерно?</label>
-        <input type="time" id="time" />
-      </div>
-
-      <button class="btn" onclick="goToIdeas()">Дальше 💕</button>
+      <h2>💖 Привет, Kristina</h2>
+      <p>Давай пойдём с тобой на свидание 😘</p>
+      <button class="btn" onclick="showScreen('screen2')">Создать свидание ✨</button>
     </div>
 
     <!-- Экран 2 -->
     <div id="screen2" class="card hidden">
-      <h3>Что тебе сейчас хочется? 😍</h3>
+      <h3>Когда пойдём? 💕</h3>
+
+      <div class="field" onclick="openDate()">
+        <label for="date">Дата</label>
+        <input type="date" id="date">
+      </div>
+
+      <div class="field" onclick="openTime()">
+        <label for="time">Время</label>
+        <input type="time" id="time">
+      </div>
+
+      <button class="btn" onclick="goToIdeas()">Дальше 💖</button>
+    </div>
+
+    <!-- Экран 3 -->
+    <div id="screen3" class="card hidden">
+      <h3>Что тебе хочется? 😍</h3>
 
       <button class="btn" onclick="setIdea('Поесть / выпить')">🍽️ Поесть / выпить</button>
       <button class="btn" onclick="setIdea('Кофе и десерт')">☕ Кофе и десерт</button>
@@ -183,8 +191,8 @@
       <button class="btn" onclick="setIdea('SPA / релакс')">🛁 SPA / релакс</button>
     </div>
 
-    <!-- Экран 3: кухни -->
-    <div id="screen3" class="card hidden">
+    <!-- Экран 4 -->
+    <div id="screen4" class="card hidden">
       <h3>Какую кухню хочется? 🍜</h3>
 
       <button class="btn" onclick="setCuisine('Итальянская')">🍝 Итальянская</button>
@@ -197,16 +205,16 @@
       <button class="btn" onclick="setCuisine('Выбрать вместе')">🤝 Выбрать вместе</button>
     </div>
 
-    <!-- Экран 4 -->
-    <div id="screen4" class="card hidden">
-      <h3>Что-нибудь добавить? 💬</h3>
-      <textarea id="comment" placeholder="Например: хочу суши, прогулку после, и чтобы было уютно 🥺"></textarea>
-      <button class="btn" onclick="finishForm()">Готово 💌</button>
-      <p class="small">Если страница открыта НЕ внутри Telegram, данные не отправятся боту.</p>
-    </div>
-
     <!-- Экран 5 -->
     <div id="screen5" class="card hidden">
+      <h3>Что-нибудь добавить? 💬</h3>
+      <textarea id="comment" placeholder="Например: хочу суши, потом прогулку и чтобы было уютно 🥺"></textarea>
+      <button class="btn" onclick="finishForm()">Готово 💌</button>
+      <p class="small">Если страница открыта вне Telegram, данные боту не отправятся.</p>
+    </div>
+
+    <!-- Экран 6 -->
+    <div id="screen6" class="card hidden">
       <h2>Готово 💖</h2>
       <p>Я уже жду наше свидание ✨</p>
       <div class="summary" id="summary"></div>
@@ -234,6 +242,24 @@
       document.getElementById(id).classList.remove("hidden");
     }
 
+    function openDate() {
+      const el = document.getElementById("date");
+      if (el.showPicker) {
+        el.showPicker();
+      } else {
+        el.focus();
+      }
+    }
+
+    function openTime() {
+      const el = document.getElementById("time");
+      if (el.showPicker) {
+        el.showPicker();
+      } else {
+        el.focus();
+      }
+    }
+
     function goToIdeas() {
       const date = document.getElementById("date").value;
       const time = document.getElementById("time").value;
@@ -250,7 +276,7 @@
 
       appData.date = date;
       appData.time = time;
-      showScreen("screen2");
+      showScreen("screen3");
     }
 
     function setIdea(value) {
@@ -258,15 +284,15 @@
       appData.cuisine = "";
 
       if (value === "Поесть / выпить") {
-        showScreen("screen3");
-      } else {
         showScreen("screen4");
+      } else {
+        showScreen("screen5");
       }
     }
 
     function setCuisine(value) {
       appData.cuisine = value;
-      showScreen("screen4");
+      showScreen("screen5");
     }
 
     function launchHearts() {
@@ -281,9 +307,16 @@
       }
     }
 
+    function formatDate(value) {
+      if (!value) return "—";
+      const parts = value.split("-");
+      if (parts.length !== 3) return value;
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    }
+
     function buildSummary() {
       let lines = [
-        "📅 Дата: " + appData.date,
+        "📅 Дата: " + formatDate(appData.date),
         "⏰ Время: " + appData.time,
         "🎯 Идея: " + appData.idea
       ];
@@ -306,7 +339,7 @@
       document.getElementById("summary").innerText = buildSummary();
 
       launchHearts();
-      showScreen("screen5");
+      showScreen("screen6");
 
       if (tg) {
         tg.sendData(payload);
