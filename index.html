@@ -1,690 +1,308 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Свидание 💖</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Свидание 💖</title>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+<style>
+* {
+  box-sizing: border-box;
+}
 
-    :root {
-      --bg1: #ffb3c7;
-      --bg2: #ffd6e7;
-      --bg3: #d6c6ff;
-      --glass: rgba(255, 255, 255, 0.22);
-      --glass-strong: rgba(255, 255, 255, 0.30);
-      --text-main: #ffffff;
-      --text-soft: rgba(255, 255, 255, 0.92);
-      --btn-text: #4f3b59;
-      --shadow: 0 18px 45px rgba(73, 25, 92, 0.18);
-      --shadow-soft: 0 8px 22px rgba(73, 25, 92, 0.12);
-      --border: rgba(255, 255, 255, 0.35);
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #a18cd1);
+  overflow: hidden;
+}
 
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      overflow-x: hidden;
-    }
+/* ✨ фон */
+.bg-bubbles {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
 
-    body {
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-      color: var(--text-main);
-      background:
-        radial-gradient(circle at 15% 20%, rgba(255,255,255,0.35), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(255,255,255,0.22), transparent 18%),
-        radial-gradient(circle at 30% 85%, rgba(255,255,255,0.18), transparent 24%),
-        linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 18px;
-      position: relative;
-    }
+.bg-bubbles span {
+  position: absolute;
+  display: block;
+  width: 8px;
+  height: 8px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 50%;
+  animation: float 10s linear infinite;
+}
 
-    /* Фоновые мягкие пятна */
-    .blob {
-      position: fixed;
-      filter: blur(18px);
-      opacity: 0.35;
-      border-radius: 50%;
-      z-index: 0;
-      animation: drift 16s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
+@keyframes float {
+  from {transform: translateY(100vh);}
+  to {transform: translateY(-10vh);}
+}
 
-    .blob.one {
-      width: 180px;
-      height: 180px;
-      top: 8%;
-      left: -20px;
-      background: rgba(255,255,255,0.28);
-    }
+/* 💖 контейнер */
+.container {
+  position: relative;
+  z-index: 2;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-    .blob.two {
-      width: 220px;
-      height: 220px;
-      bottom: 10%;
-      right: -40px;
-      background: rgba(255,255,255,0.18);
-      animation-duration: 20s;
-    }
+/* 💎 карточка */
+.card {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 22px;
+  color: white;
+  animation: fadeIn 0.4s ease;
+  position: relative;
+}
 
-    .blob.three {
-      width: 140px;
-      height: 140px;
-      top: 45%;
-      left: 70%;
-      background: rgba(255,255,255,0.16);
-      animation-duration: 18s;
-    }
+/* 💖 двигающаяся граница */
+.card::before {
+  content: "❤️ ❤️ ❤️ ❤️ ❤️ ❤️ ❤️";
+  position: absolute;
+  white-space: nowrap;
+  top: -10px;
+  left: -100%;
+  width: 200%;
+  animation: moveBorder 8s linear infinite;
+  opacity: 0.4;
+}
 
-    @keyframes drift {
-      from { transform: translateY(0px) translateX(0px) scale(1); }
-      to { transform: translateY(-20px) translateX(16px) scale(1.08); }
-    }
+@keyframes moveBorder {
+  from {transform: translateX(0);}
+  to {transform: translateX(50%);}
+}
 
-    /* Постоянно летающие сердечки */
-    .hearts-layer {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
+.hidden {
+  display: none;
+}
 
-    .heart-bg {
-      position: absolute;
-      bottom: -30px;
-      font-size: 18px;
-      opacity: 0.45;
-      animation: floatUp linear forwards;
-      filter: drop-shadow(0 2px 4px rgba(255,255,255,0.15));
-      user-select: none;
-    }
+h2, h3 {
+  margin-top: 0;
+}
 
-    @keyframes floatUp {
-      from {
-        transform: translateY(0) translateX(0) scale(0.9) rotate(0deg);
-        opacity: 0;
-      }
-      12% {
-        opacity: 0.55;
-      }
-      85% {
-        opacity: 0.42;
-      }
-      to {
-        transform: translateY(-120vh) translateX(18px) scale(1.15) rotate(12deg);
-        opacity: 0;
-      }
-    }
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 16px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  background: white;
+  color: black;
+  transition: 0.2s;
+}
 
-    .container {
-      width: 100%;
-      max-width: 430px;
-      position: relative;
-      z-index: 2;
-    }
+button:hover {
+  transform: scale(1.03);
+}
 
-    .card {
-      position: relative;
-      background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.14));
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 24px 18px 20px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      animation: cardIn 0.35s ease;
-    }
+/* ⬅️ назад */
+.back {
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
 
-    .card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 30px;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.65), rgba(255,255,255,0.12));
-      -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-      opacity: 0.7;
-    }
+/* 📅 красивый выбор */
 
-    @keyframes cardIn {
-      from {
-        opacity: 0;
-        transform: translateY(18px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+.date-box {
+  background: rgba(255,255,255,0.25);
+  padding: 14px;
+  border-radius: 16px;
+  margin-top: 10px;
+}
 
-    .hidden {
-      display: none;
-    }
+input {
+  width: 100%;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 16px;
+}
 
-    /* Поезд сверху */
-    .train-track {
-      position: absolute;
-      top: 6px;
-      left: 10px;
-      right: 10px;
-      height: 28px;
-      overflow: hidden;
-      pointer-events: none;
-      z-index: 3;
-      opacity: 0.9;
-    }
+textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  padding: 10px;
+}
 
-    .train {
-      position: absolute;
-      left: -180px;
-      top: 0;
-      white-space: nowrap;
-      font-size: 19px;
-      animation: trainRide 12s linear infinite;
-      user-select: none;
-      filter: drop-shadow(0 2px 6px rgba(255,255,255,0.22));
-    }
+.summary {
+  white-space: pre-line;
+  margin-top: 10px;
+}
 
-    @keyframes trainRide {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(760px); }
-    }
+@keyframes fadeIn {
+  from {opacity:0; transform: translateY(20px);}
+  to {opacity:1; transform: translateY(0);}
+}
 
-    .content {
-      position: relative;
-      z-index: 4;
-      margin-top: 12px;
-    }
+/* ❤️ летают всегда немного */
+.heart-bg {
+  position: fixed;
+  font-size: 14px;
+  opacity: 0.3;
+  animation: floatUp 6s linear infinite;
+}
 
-    h1, h2, h3 {
-      margin: 0 0 12px;
-      text-align: center;
-      letter-spacing: -0.02em;
-    }
-
-    h2 {
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    h3 {
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    p {
-      margin: 0 0 14px;
-      text-align: center;
-      color: var(--text-soft);
-      line-height: 1.5;
-      font-size: 15px;
-    }
-
-    .back-btn {
-      position: absolute;
-      top: 2px;
-      left: 0;
-      width: auto;
-      min-width: 42px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      font-size: 17px;
-      font-weight: 700;
-      background: rgba(255,255,255,0.28);
-      color: white;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .back-btn:hover {
-      transform: translateY(-1px) scale(1.02);
-    }
-
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 20px;
-      padding: 15px 16px;
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--btn-text);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.87));
-      box-shadow:
-        0 10px 26px rgba(255,255,255,0.20),
-        0 8px 18px rgba(74, 27, 92, 0.14);
-      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px) scale(1.015);
-      filter: brightness(1.02);
-    }
-
-    .btn:active {
-      transform: scale(0.985);
-    }
-
-    .btn.primary {
-      background:
-        linear-gradient(180deg, #ffffff, #ffe8f2);
-    }
-
-    .field-label {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 7px;
-      color: rgba(255,255,255,0.94);
-      text-align: left;
-    }
-
-    .picker-card {
-      width: 100%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.18));
-      border: 1px solid rgba(255,255,255,0.28);
-      border-radius: 22px;
-      padding: 14px;
-      margin-top: 12px;
-      box-shadow: var(--shadow-soft);
-      cursor: pointer;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
-    }
-
-    .picker-card:hover {
-      transform: translateY(-1px);
-    }
-
-    .picker-input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      min-width: 0;
-    }
-
-    .picker-icon {
-      flex: 0 0 auto;
-      font-size: 22px;
-      opacity: 0.95;
-    }
-
-    input, textarea {
-      width: 100%;
-      max-width: 100%;
-      min-width: 0;
-      border: none;
-      outline: none;
-      border-radius: 16px;
-      padding: 13px 14px;
-      font-size: 16px;
-      font-family: inherit;
-      color: #4f3b59;
-      background: rgba(255,255,255,0.95);
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-      display: block;
-    }
-
-    input[type="date"],
-    input[type="time"] {
-      min-height: 48px;
-      appearance: none;
-      -webkit-appearance: none;
-    }
-
-    textarea {
-      min-height: 105px;
-      resize: vertical;
-    }
-
-    .small {
-      margin-top: 10px;
-      font-size: 13px;
-      opacity: 0.88;
-      text-align: center;
-    }
-
-    .summary {
-      margin-top: 10px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.22);
-      padding: 14px;
-      white-space: pre-line;
-      font-size: 15px;
-      line-height: 1.6;
-      box-shadow: var(--shadow-soft);
-      text-align: left;
-    }
-
-    .top-space {
-      height: 26px;
-    }
-
-    @media (max-width: 380px) {
-      .card {
-        border-radius: 24px;
-        padding: 22px 14px 18px;
-      }
-
-      h2 { font-size: 25px; }
-      h3 { font-size: 22px; }
-
-      .btn {
-        font-size: 15px;
-        padding: 14px;
-      }
-
-      .picker-card {
-        border-radius: 18px;
-        padding: 12px;
-      }
-
-      input, textarea {
-        font-size: 15px;
-      }
-    }
-  </style>
+@keyframes floatUp {
+  from {transform: translateY(100vh);}
+  to {transform: translateY(-100px);}
+}
+</style>
 </head>
+
 <body>
-  <div class="blob one"></div>
-  <div class="blob two"></div>
-  <div class="blob three"></div>
-  <div class="hearts-layer" id="heartsLayer"></div>
 
-  <div class="container">
+<div class="bg-bubbles"></div>
 
-    <!-- Экран 1 -->
-    <div id="screen1" class="card">
-      <div class="train-track">
-        <div class="train">💗  🚂  💖  💕  💗</div>
-      </div>
-      <div class="content">
-        <h2>💖 Привет, Kristina</h2>
-        <p>Давай пойдём с тобой на свидание 😘</p>
-        <button class="btn primary" onclick="showScreen('screen2')">Создать свидание ✨</button>
-      </div>
-    </div>
+<div class="container">
 
-    <!-- Экран 2 -->
-    <div id="screen2" class="card hidden">
-      <div class="train-track">
-        <div class="train">💗  🚂  💖  💕  💗</div>
-      </div>
-      <div class="content">
-        <button class="btn back-btn" onclick="goBack()">←</button>
-        <div class="top-space"></div>
-        <h3>Когда пойдём? 💕</h3>
+<!-- экран 1 -->
+<div id="s1" class="card">
+  <h2>💖 Привет, Kristina</h2>
+  <p>Давай пойдём на свидание 😘</p>
+  <button onclick="go('s2')">Создать свидание ✨</button>
+</div>
 
-        <div class="picker-card" onclick="openDate()">
-          <label class="field-label" for="date">Дата</label>
-          <div class="picker-input-wrap">
-            <div class="picker-icon">📅</div>
-            <input type="date" id="date" />
-          </div>
-        </div>
+<!-- экран 2 -->
+<div id="s2" class="card hidden">
+  <div class="back" onclick="go('s1')">←</div>
+  <h3>Когда пойдём? 💕</h3>
 
-        <div class="picker-card" onclick="openTime()">
-          <label class="field-label" for="time">Время</label>
-          <div class="picker-input-wrap">
-            <div class="picker-icon">⏰</div>
-            <input type="time" id="time" />
-          </div>
-        </div>
-
-        <button class="btn primary" onclick="goToIdeas()">Дальше 💖</button>
-      </div>
-    </div>
-
-    <!-- Экран 3 -->
-    <div id="screen3" class="card hidden">
-      <div class="train-track">
-        <div class="train">💗  🚂  💖  💕  💗</div>
-      </div>
-      <div class="content">
-        <button class="btn back-btn" onclick="goBack()">←</button>
-        <div class="top-space"></div>
-        <h3>Что тебе хочется? 😍</h3>
-
-        <button class="btn" onclick="setIdea('Поесть / выпить')">🍽️ Поесть / выпить</button>
-        <button class="btn" onclick="setIdea('Кофе и десерт')">☕ Кофе и десерт</button>
-        <button class="btn" onclick="setIdea('Кино')">🎬 Кино</button>
-        <button class="btn" onclick="setIdea('Прогулка')">🌇 Прогулка</button>
-        <button class="btn" onclick="setIdea('Пикник')">🧺 Пикник</button>
-        <button class="btn" onclick="setIdea('Музей / выставка')">🖼️ Музей / выставка</button>
-        <button class="btn" onclick="setIdea('Активное свидание')">🎳 Активное свидание</button>
-        <button class="btn" onclick="setIdea('Уютный вечер дома')">🏠 Уютный вечер дома</button>
-        <button class="btn" onclick="setIdea('SPA / релакс')">🛁 SPA / релакс</button>
-      </div>
-    </div>
-
-    <!-- Экран 4 -->
-    <div id="screen4" class="card hidden">
-      <div class="train-track">
-        <div class="train">💗  🚂  💖  💕  💗</div>
-      </div>
-      <div class="content">
-        <button class="btn back-btn" onclick="goBack()">←</button>
-        <div class="top-space"></div>
-        <h3>Какую кухню хочется? 🍜</h3>
-
-        <button class="btn" onclick="setCuisine('Итальянская')">🍝 Итальянская</button>
-        <button class="btn" onclick="setCuisine('Японская / суши')">🍣 Японская / суши</button>
-        <button class="btn" onclick="setCuisine('Грузинская')">🥟 Грузинская</button>
-        <button class="btn" onclick="setCuisine('Азиатская')">🍜 Азиатская</button>
-        <button class="btn" onclick="setCuisine('Бургеры / стритфуд')">🍔 Бургеры / стритфуд</button>
-        <button class="btn" onclick="setCuisine('Пицца')">🍕 Пицца</button>
-        <button class="btn" onclick="setCuisine('Мясо / гриль')">🥩 Мясо / гриль</button>
-        <button class="btn" onclick="setCuisine('Выбрать вместе')">🤝 Выбрать вместе</button>
-      </div>
-    </div>
-
-    <!-- Экран 5 -->
-    <div id="screen5" class="card hidden">
-      <div class="train-track">
-        <div class="train">💗  🚂  💖  💕  💗</div>
-      </div>
-      <div class="content">
-        <button class="btn back-btn" onclick="goBack()">←</button>
-        <div class="top-space"></div>
-        <h3>Что-нибудь добавить? 💬</h3>
-        <textarea id="comment" placeholder="Например: хочу суши, потом прогулку и чтобы было уютно 🥺"></textarea>
-        <button class="btn primary" onclick="finishForm()">Готово 💌</button>
-        <p class="small">Если страница открыта вне Telegram, данные боту не отправятся.</p>
-      </div>
-    </div>
-
-    <!-- Экран 6 -->
-    <div id="screen6" class="card hidden">
-      <div class="train-track">
-        <div class="train">💗  🚂  💖  💕  💗</div>
-      </div>
-      <div class="content">
-        <h2>Готово 💖</h2>
-        <p>Я уже жду наше свидание ✨</p>
-        <div class="summary" id="summary"></div>
-      </div>
-    </div>
+  <div class="date-box" onclick="openDate()">
+    <input id="date" type="date">
   </div>
 
-  <script>
-    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  <div class="date-box" onclick="openTime()">
+    <input id="time" type="time">
+  </div>
 
-    if (tg) {
-      tg.ready();
-      tg.expand();
-    }
+  <button onclick="nextIdeas()">Дальше 💖</button>
+</div>
 
-    const appData = {
-      date: "",
-      time: "",
-      idea: "",
-      cuisine: "",
-      comment: ""
-    };
+<!-- экран 3 -->
+<div id="s3" class="card hidden">
+  <div class="back" onclick="go('s2')">←</div>
+  <h3>Что хочешь? 😍</h3>
 
-    let screenHistory = ["screen1"];
+  <button onclick="setIdea('Поесть')">🍽 Поесть</button>
+  <button onclick="setIdea('Кофе')">☕ Кофе</button>
+  <button onclick="setIdea('Кино')">🎬 Кино</button>
+  <button onclick="setIdea('Прогулка')">🌇 Прогулка</button>
+</div>
 
-    function showScreen(id) {
-      document.querySelectorAll(".card").forEach(el => el.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
+<!-- кухня -->
+<div id="s4" class="card hidden">
+  <div class="back" onclick="go('s3')">←</div>
+  <h3>Какую кухню?</h3>
 
-      const last = screenHistory[screenHistory.length - 1];
-      if (last !== id) {
-        screenHistory.push(id);
-      }
-    }
+  <button onclick="setFood('Суши')">🍣 Суши</button>
+  <button onclick="setFood('Пицца')">🍕 Пицца</button>
+  <button onclick="setFood('Итальянская')">🍝 Италия</button>
+</div>
 
-    function goBack() {
-      if (screenHistory.length > 1) {
-        screenHistory.pop();
-        const prev = screenHistory[screenHistory.length - 1];
-        document.querySelectorAll(".card").forEach(el => el.classList.add("hidden"));
-        document.getElementById(prev).classList.remove("hidden");
-      }
-    }
+<!-- комментарий -->
+<div id="s5" class="card hidden">
+  <div class="back" onclick="go('s3')">←</div>
+  <h3>Комментарий 💬</h3>
+  <textarea id="comment"></textarea>
+  <button onclick="finish()">Готово 💖</button>
+</div>
 
-    function openDate() {
-      const el = document.getElementById("date");
-      if (el.showPicker) {
-        el.showPicker();
-      } else {
-        el.focus();
-      }
-    }
+<!-- финал -->
+<div id="s6" class="card hidden">
+  <h2>💖 Готово</h2>
+  <p>Я уже жду тебя 😘</p>
+  <div id="sum" class="summary"></div>
+</div>
 
-    function openTime() {
-      const el = document.getElementById("time");
-      if (el.showPicker) {
-        el.showPicker();
-      } else {
-        el.focus();
-      }
-    }
+</div>
 
-    function goToIdeas() {
-      const date = document.getElementById("date").value;
-      const time = document.getElementById("time").value;
+<script>
+const tg = window.Telegram.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
 
-      if (!date) {
-        alert("Пожалуйста, выбери дату 💕");
-        return;
-      }
+let data = {};
 
-      if (!time) {
-        alert("Пожалуйста, выбери время 💕");
-        return;
-      }
+function go(id){
+  document.querySelectorAll('.card').forEach(e=>e.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
 
-      appData.date = date;
-      appData.time = time;
-      showScreen("screen3");
-    }
+function openDate(){
+  let el = document.getElementById('date');
+  el.showPicker ? el.showPicker() : el.focus();
+}
 
-    function setIdea(value) {
-      appData.idea = value;
-      appData.cuisine = "";
+function openTime(){
+  let el = document.getElementById('time');
+  el.showPicker ? el.showPicker() : el.focus();
+}
 
-      if (value === "Поесть / выпить") {
-        showScreen("screen4");
-      } else {
-        showScreen("screen5");
-      }
-    }
+function nextIdeas(){
+  data.date = document.getElementById('date').value;
+  data.time = document.getElementById('time').value;
+  go('s3');
+}
 
-    function setCuisine(value) {
-      appData.cuisine = value;
-      showScreen("screen5");
-    }
+function setIdea(v){
+  data.idea = v;
+  if(v==="Поесть") go('s4');
+  else go('s5');
+}
 
-    function launchCelebrationHearts() {
-      for (let i = 0; i < 16; i++) {
-        const heart = document.createElement("div");
-        heart.className = "heart-bg";
-        heart.textContent = i % 3 === 0 ? "💖" : (i % 3 === 1 ? "💕" : "💗");
-        heart.style.left = Math.random() * 90 + "%";
-        heart.style.fontSize = (18 + Math.random() * 10) + "px";
-        heart.style.animationDuration = (3.8 + Math.random() * 2.2) + "s";
-        document.getElementById("heartsLayer").appendChild(heart);
-        setTimeout(() => heart.remove(), 6500);
-      }
-    }
+function setFood(v){
+  data.food = v;
+  go('s5');
+}
 
-    function formatDate(value) {
-      if (!value) return "—";
-      const parts = value.split("-");
-      if (parts.length !== 3) return value;
-      return `${parts[2]}.${parts[1]}.${parts[0]}`;
-    }
+function finish(){
+  data.comment=document.getElementById('comment').value;
 
-    function buildSummary() {
-      const rows = [
-        "📅 Дата: " + formatDate(appData.date),
-        "⏰ Время: " + appData.time,
-        "🎯 Идея: " + appData.idea
-      ];
+  document.getElementById('sum').innerText=JSON.stringify(data,null,2);
 
-      if (appData.cuisine) {
-        rows.push("🍜 Кухня: " + appData.cuisine);
-      }
+  if(tg) tg.sendData(JSON.stringify(data));
 
-      if (appData.comment) {
-        rows.push("💬 Пожелание: " + appData.comment);
-      }
+  go('s6');
+}
 
-      return rows.join("\\n");
-    }
+/* фон пузырьков */
+for(let i=0;i<40;i++){
+  let s=document.createElement('span');
+  s.style.left=Math.random()*100+"%";
+  s.style.animationDuration=5+Math.random()*10+"s";
+  document.querySelector('.bg-bubbles').appendChild(s);
+}
 
-    function finishForm() {
-      appData.comment = document.getElementById("comment").value.trim();
+/* ❤️ фон сердечек */
+setInterval(()=>{
+  let h=document.createElement("div");
+  h.className="heart-bg";
+  h.innerText="💖";
+  h.style.left=Math.random()*100+"%";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),6000);
+},800);
+</script>
 
-      const payload = JSON.stringify(appData);
-      document.getElementById("summary").innerText = buildSummary();
-
-      launchCelebrationHearts();
-      showScreen("screen6");
-
-      if (tg) {
-        tg.sendData(payload);
-      } else {
-        console.log("Открыто вне Telegram:", payload);
-      }
-    }
-
-    // Постоянно летающие сердечки на фоне
-    function spawnBackgroundHeart() {
-      const heart = document.createElement("div");
-      heart.className = "heart-bg";
-
-      const variants = ["💖", "💕", "💗", "✨"];
-      heart.textContent = variants[Math.floor(Math.random() * variants.length)];
-      heart.style.left = Math.random() * 95 + "%";
-      heart.style.fontSize = (16 + Math.random() * 10) + "px";
-      heart.style.animationDuration = (6 + Math.random() * 4) + "s";
-
-      document.getElementById("heartsLayer").appendChild(heart);
-      setTimeout(() => heart.remove(), 11000);
-    }
-
-    setInterval(spawnBackgroundHeart, 700);
-  </script>
 </body>
 </html>
+``
