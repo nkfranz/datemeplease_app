@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Свидание 💖</title>
 
-  <!-- Telegram Web App -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -15,27 +14,30 @@
 
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #ff9a9e, #a18cd1);
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      color: white;
+      padding: 20px;
     }
 
     .container {
       width: 100%;
-      max-width: 420px;
-      padding: 20px;
+      max-width: 430px;
+      position: relative;
     }
 
     .card {
-      background: rgba(255,255,255,0.2);
-      border-radius: 20px;
-      padding: 20px;
-      backdrop-filter: blur(10px);
-      animation: fadeIn 0.5s;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.16);
+      animation: fadeIn 0.35s ease;
     }
 
     .hidden {
@@ -44,119 +46,274 @@
 
     h2, h3 {
       margin-top: 0;
+      margin-bottom: 12px;
     }
 
-    button {
+    p {
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .btn {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
       border: none;
-      border-radius: 12px;
-      background: white;
-      color: black;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-top: 10px;
       font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      transition: 0.2s;
+      background: white;
+      color: #333;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     }
 
-    button:hover {
-      transform: scale(1.05);
+    .btn:hover {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .field {
+      margin-top: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      opacity: 0.95;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-size: 15px;
+      outline: none;
+      resize: vertical;
     }
 
     textarea {
-      width: 100%;
-      padding: 12px;
+      min-height: 90px;
+    }
+
+    .small {
+      font-size: 13px;
+      opacity: 0.9;
       margin-top: 10px;
-      border-radius: 12px;
-      border: none;
-      resize: none;
+    }
+
+    .summary {
+      background: rgba(255,255,255,0.14);
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 12px;
+      white-space: pre-line;
+      font-size: 15px;
+    }
+
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      font-size: 22px;
+      animation: floatUp 2.2s linear forwards;
+      pointer-events: none;
     }
 
     @keyframes fadeIn {
-      from {opacity: 0; transform: translateY(20px);}
-      to {opacity: 1; transform: translateY(0);}
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes floatUp {
+      from {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-220px);
+        opacity: 0;
+      }
     }
   </style>
 </head>
-
 <body>
+  <div class="container">
+    <!-- Экран 1 -->
+    <div id="screen1" class="card">
+      <h2>💖 Привет, Kristina </h2>
+      <p>Давай выберем следующее свидание ✨</p>
 
-<div class="container">
+      <div class="field">
+        <label for="date">Когда ты хочешь свидание?</label>
+        <input type="date" id="date" />
+      </div>
 
-  <!-- Экран 1 -->
-  <div id="screen1" class="card">
-    <h2>💖 Привет, Кристина</h2>
-    <p>Пойдём на свидание? 😘</p>
-    <button onclick="next(2)">Начать ✨</button>
+      <div class="field">
+        <label for="time">Во сколько примерно?</label>
+        <input type="time" id="time" />
+      </div>
+
+      <button class="btn" onclick="goToIdeas()">Дальше 💕</button>
+    </div>
+
+    <!-- Экран 2 -->
+    <div id="screen2" class="card hidden">
+      <h3>Что тебе сейчас хочется? 😍</h3>
+
+      <button class="btn" onclick="setIdea('Поесть / выпить')">🍽️ Поесть / выпить</button>
+      <button class="btn" onclick="setIdea('Кофе и десерт')">☕ Кофе и десерт</button>
+      <button class="btn" onclick="setIdea('Кино')">🎬 Кино</button>
+      <button class="btn" onclick="setIdea('Прогулка')">🌇 Прогулка</button>
+      <button class="btn" onclick="setIdea('Пикник')">🧺 Пикник</button>
+      <button class="btn" onclick="setIdea('Музей / выставка')">🖼️ Музей / выставка</button>
+      <button class="btn" onclick="setIdea('Активное свидание')">🎳 Активное свидание</button>
+      <button class="btn" onclick="setIdea('Уютный вечер дома')">🏠 Уютный вечер дома</button>
+      <button class="btn" onclick="setIdea('SPA / релакс')">🛁 SPA / релакс</button>
+    </div>
+
+    <!-- Экран 3: кухни -->
+    <div id="screen3" class="card hidden">
+      <h3>Какую кухню хочется? 🍜</h3>
+
+      <button class="btn" onclick="setCuisine('Итальянская')">🍝 Итальянская</button>
+      <button class="btn" onclick="setCuisine('Японская / суши')">🍣 Японская / суши</button>
+      <button class="btn" onclick="setCuisine('Грузинская')">🥟 Грузинская</button>
+      <button class="btn" onclick="setCuisine('Азиатская')">🍜 Азиатская</button>
+      <button class="btn" onclick="setCuisine('Бургеры / стритфуд')">🍔 Бургеры / стритфуд</button>
+      <button class="btn" onclick="setCuisine('Пицца')">🍕 Пицца</button>
+      <button class="btn" onclick="setCuisine('Мясо / гриль')">🥩 Мясо / гриль</button>
+      <button class="btn" onclick="setCuisine('Выбрать вместе')">🤝 Выбрать вместе</button>
+    </div>
+
+    <!-- Экран 4 -->
+    <div id="screen4" class="card hidden">
+      <h3>Что-нибудь добавить? 💬</h3>
+      <textarea id="comment" placeholder="Например: хочу суши, прогулку после, и чтобы было уютно 🥺"></textarea>
+      <button class="btn" onclick="finishForm()">Готово 💌</button>
+      <p class="small">Если страница открыта НЕ внутри Telegram, данные не отправятся боту.</p>
+    </div>
+
+    <!-- Экран 5 -->
+    <div id="screen5" class="card hidden">
+      <h2>Готово 💖</h2>
+      <p>Я уже жду наше свидание ✨</p>
+      <div class="summary" id="summary"></div>
+    </div>
   </div>
 
-  <!-- Экран 2 -->
-  <div id="screen2" class="card hidden">
-    <h3>Когда ты хочешь? 💕</h3>
-    <button onclick="setDate('Сегодня')">🌆 Сегодня</button>
-    <button onclick="setDate('Выходные')">🎉 Выходные</button>
-  </div>
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 
-  <!-- Экран 3 -->
-  <div id="screen3" class="card hidden">
-    <h3>Что будем делать? 😍</h3>
-    <button onclick="setActivity('Фильм')">🍿 Фильм</button>
-    <button onclick="setActivity('Ресторан')">🍽 Ресторан</button>
-    <button onclick="setActivity('Прогулка')">🌳 Прогулка</button>
-    <button onclick="setActivity('Сюрприз')">🎲 Сюрприз</button>
-  </div>
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
 
-  <!-- Экран 4 -->
-  <div id="screen4" class="card hidden">
-    <h3>Дополнение 💬</h3>
-    <textarea id="comment" placeholder="например: хочу суши 🍣"></textarea>
-    <button onclick="sendData()">Готово 💖</button>
-  </div>
+    const appData = {
+      date: "",
+      time: "",
+      idea: "",
+      cuisine: "",
+      comment: ""
+    };
 
-  <!-- Экран 5 -->
-  <div id="screen5" class="card hidden">
-    <h2>Готово 💌</h2>
-    <p>Я отправил всё мужу 😘</p>
-  </div>
+    function showScreen(id) {
+      document.querySelectorAll(".card").forEach(el => el.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+    }
 
-</div>
+    function goToIdeas() {
+      const date = document.getElementById("date").value;
+      const time = document.getElementById("time").value;
 
-<script>
-let data = {
-  date: "",
-  activity: "",
-  comment: ""
-};
+      if (!date) {
+        alert("Пожалуйста, выбери дату 💕");
+        return;
+      }
 
-function next(step) {
-  document.querySelectorAll('.card').forEach(el => el.classList.add('hidden'));
-  document.getElementById('screen' + step).classList.remove('hidden');
-}
+      if (!time) {
+        alert("Пожалуйста, выбери время 💕");
+        return;
+      }
 
-function setDate(d) {
-  data.date = d;
-  next(3);
-}
+      appData.date = date;
+      appData.time = time;
+      showScreen("screen2");
+    }
 
-function setActivity(a) {
-  data.activity = a;
-  next(4);
-}
+    function setIdea(value) {
+      appData.idea = value;
+      appData.cuisine = "";
 
-function sendData() {
-  data.comment = document.getElementById('comment').value;
+      if (value === "Поесть / выпить") {
+        showScreen("screen3");
+      } else {
+        showScreen("screen4");
+      }
+    }
 
-  const payload = JSON.stringify(data);
+    function setCuisine(value) {
+      appData.cuisine = value;
+      showScreen("screen4");
+    }
 
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.sendData(payload);
-  } else {
-    alert(payload);
-  }
+    function launchHearts() {
+      for (let i = 0; i < 12; i++) {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.textContent = "💖";
+        heart.style.left = Math.random() * 90 + "%";
+        heart.style.animationDelay = (Math.random() * 0.4) + "s";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 2600);
+      }
+    }
 
-  next(5);
-}
-</script>
+    function buildSummary() {
+      let lines = [
+        "📅 Дата: " + appData.date,
+        "⏰ Время: " + appData.time,
+        "🎯 Идея: " + appData.idea
+      ];
 
+      if (appData.cuisine) {
+        lines.push("🍜 Кухня: " + appData.cuisine);
+      }
+
+      if (appData.comment) {
+        lines.push("💬 Пожелание: " + appData.comment);
+      }
+
+      return lines.join("\n");
+    }
+
+    function finishForm() {
+      appData.comment = document.getElementById("comment").value.trim();
+
+      const payload = JSON.stringify(appData);
+      document.getElementById("summary").innerText = buildSummary();
+
+      launchHearts();
+      showScreen("screen5");
+
+      if (tg) {
+        tg.sendData(payload);
+      } else {
+        console.log("Открыто вне Telegram:", payload);
+      }
+    }
+  </script>
 </body>
 </html>
